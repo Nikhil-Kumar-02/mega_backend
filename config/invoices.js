@@ -2,10 +2,10 @@ const {Schema,model} = require("mongoose");
 const mongoose = require('mongoose')
   
 const MySchema = new Schema({
-    users : {
+    users : [{
         type : mongoose.Schema.Types.ObjectId,
         ref : 'user'
-    },
+    }],
     courseName : {
         type :String,
         required : true,
