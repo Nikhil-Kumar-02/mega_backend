@@ -17,7 +17,6 @@ const MySchema = new Schema({
     },
     whatYouWillLearn : {
         type : String,
-        required : true,
         trim : true
     },
     courseContent : [{
@@ -31,11 +30,11 @@ const MySchema = new Schema({
     price : {
         type : Number,
         required : true,
-        trim : true
+        trim : true 
     },
     thumbnail : {
         type : String,
-        required : true,
+        required : true, 
         trim : true
     },
     tag : [{

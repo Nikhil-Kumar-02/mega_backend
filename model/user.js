@@ -27,7 +27,7 @@ const MySchema = new Schema({
     phoneNumber: {
         type: String,
         required: true,
-
+        trim : true
     },
     password: {
         type: String,
@@ -36,8 +36,12 @@ const MySchema = new Schema({
     courses : [{
         type : mongoose.Schema.Types.ObjectId,
         ref : 'courses'
-    }],
-    profile : {
+    }],  
+    image : {
+        type : String,
+        required : true
+    },
+    additionalDetails : {
         type : mongoose.Schema.Types.ObjectId,
         ref : 'profile'
     },

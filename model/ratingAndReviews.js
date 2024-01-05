@@ -2,21 +2,21 @@ const {Schema,model} = require("mongoose");
 const mongoose = require('mongoose');
   
 const MySchema = new Schema({
-    course : [{
+    user : {
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'courses'
-    }],
-    name : {
+        ref : 'user'
+    },
+    rating : {
         type : Number,
         required : true,
         trim : true
     },
-    Description : {
+    review : {
         type : String,
         required : true,
         trim : true
     },
 });
 
-module.exports = model("tags", MySchema);
+module.exports = model("ratingAndReviews", MySchema);
   

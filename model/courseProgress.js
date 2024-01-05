@@ -7,7 +7,7 @@ const MySchema = new Schema({
         ref : 'courses'
     },
     completedVideos : [{
-        ttype : mongoose.Schema.Types.ObjectId,
+        type : mongoose.Schema.Types.ObjectId,
         ref : 'subSection'
     }],
 });
