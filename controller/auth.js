@@ -3,6 +3,10 @@ const OTP_Model = require('../model/otp');
 const User = require('../model/user');
 const {StatusCodes} = require('http-status-codes');
 const Profile= require('../model/profile');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+const cookieParser = require('cookie-parser')
 
 //send otp as to create account we have to verify the mail
 const generateOpt = async (req,res) => {
@@ -56,6 +60,7 @@ function randomHexGenerator(){
     }
     return generatedHex;
 }
+
 
 //signup
 const signup = async(req,res) => {
@@ -114,6 +119,8 @@ const signup = async(req,res) => {
         //now we have everything to create a user
         const newUser = await User.create({firstName , lastName , email , accountType , phoneNumber , password , image , additionalDetails : userProfile._id});
 
+        console.log('the newly added user is : ' ,  newUser);
+
         res.status(StatusCodes.CREATED).json({
             message : "user created",
             description : "your account has been sucessfully created and varified"
@@ -126,15 +133,78 @@ const signup = async(req,res) => {
             error : error
         })
     }
-
 }
 
 
 //login
 
+const userLogin = async (req,res) => {
+    try {
+        //get data from from req body
+        const {email , password} = req.body;
+        //validate data
+        if(!email || !password){
+            res.status(StatusCodes.PARTIAL_CONTENT).json({
+                message : 'enter both email and password'
+            })
+        }
+        //check if the user exits or not that is registered or not
+        const findUser = await User.findOne(email);
+        if(!findUser){
+            res.status(StatusCodes.NOT_FOUND).json({
+                message : 'user not found',
+                description : 'you need to sign up first in order to log in'
+            })
+        }
+        //match password and generate jwt token
+        const passwordMatch = await bcrypt.compare(password, findUser.password);
+        if(!passwordMatch){
+            res.status(StatusCodes.CONFLICT).json({
+                message : 'password does not match',
+                description : 'please enter the correct login credentials'
+            })
+        }
+        else{
+            const payload = {
+                email , 
+                id : findUser._id,
+                accountType : findUser.accountType
+            }
+
+            const token = await jwt.sign(payload , process.env.JWT_SECRET , {expiresIn : '2h'});
+            //create cookie and send response
+            findUser.password = undefined;
+
+            const options = {
+                expires : new Date(Date.now() + 3*24*60*60*1000),
+                httpOnly : true
+            }
+            
+            res.cookie("token" , token , options).status(StatusCodes.ACCEPTED).json({
+                token,
+                findUser,
+                message : 'user logged in sucessfully'
+            })
+        }
+    } catch (error) {
+        console.log('error while trying to log in : ', error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message : "cant log in",
+            error : error
+        })
+    }
+}
 
 
 //this is when you know the current password and still want to change it to new password due to 
 //security reasons
 
 //change password
+const updatePassword = async(req,res) => {
+    //get data from req body
+    //get oldpasword newpassword confirm password
+    //valdation
+    //update password in db
+    //send email for updation of password
+    //return response
+}
