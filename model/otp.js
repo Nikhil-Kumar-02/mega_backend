@@ -19,7 +19,7 @@ const MySchema = new Schema({
 });
 
 //send email for otp verification
-async function sendVerificationMail(email) {
+async function sendVerificationMail(email , otp) {
     try {
         const mailresult = await sendEmail(email , otp);
         console.log("email sent sucessfully : " , mailresult);

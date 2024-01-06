@@ -1,5 +1,6 @@
 const {Schema,model} = require("mongoose");
 const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
   
 const MySchema = new Schema({
     firstName: {
@@ -9,7 +10,6 @@ const MySchema = new Schema({
     },
     lastName: {
         type: String,
-        required: true,
         trim : true
     },
     email: {
@@ -26,7 +26,6 @@ const MySchema = new Schema({
     },
     phoneNumber: {
         type: String,
-        required: true,
         trim : true
     },
     password: {
@@ -39,7 +38,6 @@ const MySchema = new Schema({
     }],  
     image : {
         type : String,
-        required : true
     },
     additionalDetails : {
         type : mongoose.Schema.Types.ObjectId,
@@ -49,6 +47,16 @@ const MySchema = new Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref : 'courseProgress'
     }]
+});
+
+MySchema.pre('save', async function (next) {
+    try {
+        const hashedPassword = await bcrypt.hash(this.password, 6);
+        this.password = hashedPassword;
+        next();
+    } catch (error) {
+        next(error);
+    }
 });
 
 module.exports = model("user", MySchema);
