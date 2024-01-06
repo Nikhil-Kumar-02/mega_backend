@@ -37,6 +37,10 @@ const MySchema = new Schema({
         required : true, 
         trim : true
     },
+    language : {
+        type :String,
+        trim : true
+    },
     tag : [{
         type : mongoose.Schema.Types.ObjectId,
         ref : 'tags'

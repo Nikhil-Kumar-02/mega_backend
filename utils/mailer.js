@@ -9,12 +9,12 @@ let mailTransporter = nodemailer.createTransport({
 	}
 });
 
-const sendEmail = async (userEmail , otp) => {
+const sendEmail = async (userEmail , body) => {
     let mailDetails = {
         from: process.env.MY_EMAIL,
         to: userEmail,
-        subject: 'email/mobile Number verification mail',
-        text: `This is Your verification OTP Valid for only 2 Minutes   <h2>${otp}<h2>`
+        subject: 'From StudyNotion',
+        text: `<h2>${body}<h2>`
     };
     const mailresult = await mailTransporter.sendMail(mailDetails, function(err, data) {
         if(err) {
