@@ -11,7 +11,7 @@ const MySchema = new Schema({
         required : true,
         trim : true
     },
-    Description : {
+    description : {
         type : String,
         required : true,
         trim : true

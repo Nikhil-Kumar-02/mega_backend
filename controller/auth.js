@@ -171,7 +171,7 @@ const userLogin = async (req,res) => {
                 accountType : findUser.accountType
             }
 
-            const token = await jwt.sign(payload , process.env.JWT_SECRET , {expiresIn : '2h'});
+            const token = jwt.sign(payload , process.env.JWT_SECRET , {expiresIn : '2h'});
             //create cookie and send response
             findUser.password = undefined;
 
