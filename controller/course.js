@@ -133,3 +133,8 @@ const showAllCourses = async (req,res) => {
         })
     }
 }
+
+exports.default = {
+    createCourse ,
+    showAllCourses
+}

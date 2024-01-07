@@ -22,7 +22,7 @@ const MySchema = new Schema({
         trim : true
     },
     additionalUrl : {
-        type : Number,
+        type : String,
         trim : true
     },
 });
