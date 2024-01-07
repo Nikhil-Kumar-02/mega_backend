@@ -23,7 +23,8 @@ const auth = async (req,res,next) => {
             const decodeToken = jwt.verify(token , process.env.JWT_SECRET);
             console.log('the decode user details from the token is : ' , decodeToken);
             //now add this decoded token to the req body
-            req.body = decodeToken;
+            req.user = decodeToken;
+            //user object has all the user details
         } catch (error) {
             console.log('error while verifying token');
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -43,14 +44,15 @@ const auth = async (req,res,next) => {
 //isstudent
 const isStudent = async (req,res,next) =>{
     try {
+        //req.user because we have added the user details in the user object of req ABOVE
         if(req.user.accountType != "Student"){
             console.log('in is student middle ware try block');
             res.status(StatusCodes.UNAUTHORIZED).json({
                 message : 'error while verifying the student',
-                description : "you are not a student"
+                description : "you are not a student , this route is only for students"
             })
-            next();
         }
+        next();
     } catch (error) {
         console.log('in is student middle ware');
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -67,10 +69,10 @@ const isAdmin = async (req,res,next) =>{
             console.log('in is Admin middle ware try block');
             res.status(StatusCodes.UNAUTHORIZED).json({
                 message : 'error while verifying the Admin',
-                description : "you are not a Admin"
+                description : "you are not a Admin , this route is only for Admin"
             })
-            next();
         }
+        next();
     } catch (error) {
         console.log('in is Admin middle ware');
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -87,10 +89,10 @@ const isInstructor = async (req,res,next) =>{
             console.log('in is Instructor middle ware try block');
             res.status(StatusCodes.UNAUTHORIZED).json({
                 message : 'error while verifying the Instructor',
-                description : "you are not a Instructor"
+                description : "you are not a Instructor , this route is only for Instructor"
             })
-            next();
         }
+        next();
     } catch (error) {
         console.log('in is Instructor middle ware');
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({

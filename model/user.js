@@ -46,7 +46,13 @@ const MySchema = new Schema({
     courseProgress : [{
         type : mongoose.Schema.Types.ObjectId,
         ref : 'courseProgress'
-    }]
+    }],
+    token : {
+        type : String,
+    },
+    resetPasswordExpires : {
+        type : Date,
+    }
 });
 
 MySchema.pre('save', async function (next) {
