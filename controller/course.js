@@ -112,3 +112,24 @@ const createCourse = async (req,res) => {
 }
 
 //get all courses
+const showAllCourses = async (req,res) => {
+    try {
+        const allCourses = await Course.find({} , {courseName:true,
+                                            price : true,
+                                            thumbnail : true,
+                                            instructor :true,
+                                            reviewAndRatings : true,
+                                            studentsEnrolled : true}).populate("instructor").exec();
+
+        res.status(StatusCodes.OK).json({
+            message : 'all courses sucessfully fetched' , 
+            data : allCourses
+        })
+    } catch (error) {
+        console.log('error while fetching all courses' , error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message : 'error while fetching all courses',
+            error : error
+        })
+    }
+}
