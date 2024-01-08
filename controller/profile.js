@@ -32,6 +32,7 @@ const updateProfile = async(req,res) => {
 
 
 //try to use cron jobs that is schedule eevry delte account to some time that is after a day or so
+//learn about task scheduling
 const deleteUserPermanently = async (req,res) => {
     try {
         //fetch data
@@ -88,7 +89,25 @@ const deleteUserPermanently = async (req,res) => {
     }
 }
 
+const getAllUserDetails = async (req,res) => {
+    try {
+        const userId = req.user.id;
+        const userFullDetails = await User.findById(userId).populate('additionalDetails');
+        res.status(StatusCodes.OK).json({
+            message : 'data fetched sucesfully',
+            userFullDetails,
+        })
+    } catch (error) {
+        console.log('error while fetching the user details', error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message : 'error while trying to fetch the user details',
+            error,
+        })
+    }
+}
+
 module.exports = {
     updateProfile ,
-    deleteUserPermanently
+    deleteUserPermanently,
+    getAllUserDetails
 }
