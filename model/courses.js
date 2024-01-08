@@ -13,7 +13,7 @@ const MySchema = new Schema({
     },
     instructor : {
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'user'
+        ref : 'User'
     },
     whatYouWillLearn : {
         type : String,
@@ -21,11 +21,11 @@ const MySchema = new Schema({
     },
     courseContent : [{
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'section'
+        ref : 'Section'
     }],
     reviewAndRatings : [{
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'ratingAndReviews'
+        ref : 'RatingAndReviews'
     }],
     price : {
         type : Number,
@@ -43,13 +43,13 @@ const MySchema = new Schema({
     },
     tag : [{
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'tags'
+        ref : 'Tags'
     }],
     studentsEnrolled : [{
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'user'
+        ref : 'User'
     }]
 });
 
-module.exports = model("courses", MySchema);
+module.exports = model("Courses", MySchema);
   

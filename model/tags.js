@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const MySchema = new Schema({
     course : [{
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'courses'
+        ref : 'Courses'
     }],
     name : {
         type : String,
@@ -18,5 +18,5 @@ const MySchema = new Schema({
     },
 });
 
-module.exports = model("tags", MySchema);
+module.exports = model("Tags", MySchema);
   

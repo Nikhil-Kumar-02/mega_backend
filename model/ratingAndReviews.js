@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const MySchema = new Schema({
     user : {
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'user'
+        ref : 'User'
     },
     rating : {
         type : Number,
@@ -18,5 +18,5 @@ const MySchema = new Schema({
     },
 });
 
-module.exports = model("ratingAndReviews", MySchema);
+module.exports = model("RatingAndReviews", MySchema);
   

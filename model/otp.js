@@ -34,5 +34,5 @@ MySchema.pre("save" , async function(next){
     next();
 })
 
-module.exports = model("otp", MySchema);
+module.exports = model("Otp", MySchema);
   

@@ -4,13 +4,13 @@ const mongoose = require('mongoose');
 const MySchema = new Schema({
     courseId : {
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'courses'
+        ref : 'Courses'
     },
     completedVideos : [{
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'subSection'
+        ref : 'SubSection'
     }],
 });
 
-module.exports = model("courseProgress", MySchema);
+module.exports = model("CourseProgress", MySchema);
   

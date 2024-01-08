@@ -27,5 +27,5 @@ const MySchema = new Schema({
     },
 });
 
-module.exports = model("subSection", MySchema);
+module.exports = model("SubSection", MySchema);
   

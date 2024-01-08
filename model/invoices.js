@@ -4,7 +4,7 @@ const mongoose = require('mongoose')
 const MySchema = new Schema({
     users : [{
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'user'
+        ref : 'User'
     }],
     courseName : {
         type :String,
@@ -28,9 +28,9 @@ const MySchema = new Schema({
     },
     courseId : {
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'courses'
+        ref : 'Courses'
     }
 });
 
-module.exports = model("invoices", MySchema);
+module.exports = model("Invoices", MySchema);
   

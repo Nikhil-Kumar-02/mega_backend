@@ -23,5 +23,5 @@ const MySchema = new Schema({
     },
 });
 
-module.exports = model("profile", MySchema);
+module.exports = model("Profile", MySchema);
   

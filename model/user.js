@@ -34,18 +34,18 @@ const MySchema = new Schema({
     },
     courses : [{
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'courses'
+        ref : 'Courses'
     }],  
     image : {
         type : String,
     },
     additionalDetails : {
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'profile'
+        ref : 'Profile'
     },
     courseProgress : [{
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'courseProgress'
+        ref : 'CourseProgress'
     }],
     token : {
         type : String,
@@ -65,5 +65,5 @@ MySchema.pre('save', async function (next) {
     }
 });
 
-module.exports = model("user", MySchema);
+module.exports = model("User", MySchema);
   
