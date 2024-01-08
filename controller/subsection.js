@@ -83,7 +83,7 @@ const deleteSubsection = async (req,res) => {
 const updateSubSection = async (req,res) => {
     try {
         //fetch data
-        const {title , timeDuration , description , subsectionId} = req.body;
+        const {title="" , timeDuration="" , description="" , subsectionId=""} = req.body;
         //validate data
         if(!title || !timeDuration || !description || !subsectionId){
             console.log('data missing');

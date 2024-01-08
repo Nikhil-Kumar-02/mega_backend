@@ -4,7 +4,6 @@ const MySchema = new Schema({
     gender : {
         type :String,
         enum : ["Male" , "Female" , "Others"],
-        required : true,
         trim : true
     },
     dob : {
@@ -13,12 +12,10 @@ const MySchema = new Schema({
     },
     about : {
         type : String,
-        required : true,
         trim : true
     },
     contactNumber : {
         type : Number,
-        required : true,
         trim : true
     },
 });
