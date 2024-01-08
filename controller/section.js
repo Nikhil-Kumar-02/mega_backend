@@ -33,7 +33,7 @@ const createSection = async (req,res) => {
             $push : {
                 courseContent : newSection._id
             }
-        }).populate({
+        },{new : true}).populate({
             path: 'section',
             populate: {
                 path: 'subSection',
@@ -86,7 +86,7 @@ const deleteSection = async (req,res) => {
         // }
         //perform the operation
         await Section.findByIdAndDelete(sectionId);
-        const updatedCourseDetails = await Course.updateOne(
+        const updatedCourseDetails = await Course.findOneAndUpdate(
             { _id: courseId },
             { 
                 $pull: {
@@ -118,7 +118,7 @@ const updateSection = async (req,res) => {
         }
         const updatedSection = await Section.findByIdAndUpdate(sectionId , {sectionName} , {new : true});
 
-        res.status(StatusCodes.RESET_CONTENT).json({
+        res.status(StatusCodes.OK).json({
             message : 'the section name has been updated sucessfully',
             data : updatedSection
         })
