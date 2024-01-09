@@ -134,7 +134,53 @@ const showAllCourses = async (req,res) => {
     }
 }
 
+const getCompleteCourseDetails = async (req,res) => {
+    try {
+        //fetch the data
+        const {courseId} = req.body;
+        //validate data
+        //generate the desired result
+        const detailedCourseResponse = await Course.findById(courseId)
+        .populate({
+            path : 'instructor',
+            populate : {
+                path : 'additionalDetails',
+                model : 'Profile'
+            }
+        })
+        .populate({
+            path: 'courseContent',
+            populate: {
+                path: 'subSection',
+                model: 'SubSection'
+            }
+        })
+        .populate('reviewAndRatings')
+        .populate('category').exec();   
+
+        if(!detailedCourseResponse){
+            console.log('no course found from the input course id');
+            res.status(StatusCodes.NOT_FOUND).json({
+                message : 'no course found from the input course id'
+            })
+        }
+
+        //return response
+        res.status(StatusCodes.OK).json({
+            message : 'course complete data fetched from db',
+            data : detailedCourseResponse
+        })
+    } catch (error) {
+        console.log('error while fetching the complete course details');
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message: 'error while fetching the complete course details',
+            error
+        })
+    }
+}
+
 exports.default = {
     createCourse ,
-    showAllCourses
+    showAllCourses,
+    getCompleteCourseDetails
 }

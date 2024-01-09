@@ -34,10 +34,10 @@ const createSection = async (req,res) => {
                 courseContent : newSection._id
             }
         },{new : true}).populate({
-            path: 'section',
+            path: 'courseContent',
             populate: {
                 path: 'subSection',
-                model: 'subSection'
+                model: 'SubSection'
             }
         });
 
