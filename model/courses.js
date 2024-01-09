@@ -41,6 +41,18 @@ const MySchema = new Schema({
         type :String,
         trim : true
     },
+    category : {
+        type : mongoose.Schema.Types.ObjectId,
+        require : true,
+        ref : 'Category'
+    },
+    instructions : {
+        type : String
+    },
+    status : {
+        type :String,
+        enum : ["Draft" , "Published"]
+    },
     tag : [{
         type : mongoose.Schema.Types.ObjectId,
         ref : 'Tags'
