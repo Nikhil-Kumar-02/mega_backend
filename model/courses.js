@@ -60,7 +60,11 @@ const MySchema = new Schema({
     studentsEnrolled : [{
         type : mongoose.Schema.Types.ObjectId,
         ref : 'User'
-    }]
+    }],
+    category : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'Category'
+    }
 });
 
 module.exports = model("Courses", MySchema);
