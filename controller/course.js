@@ -1,5 +1,6 @@
 const Course = require('../model/courses');
 const User = require('../model/user');
+const Category = require('../model/category')
 const Tag = require('../model/tags');
 const cloudinaryFileUpload = require('../utils/imageUploader');
 const { StatusCodes } = require('http-status-codes');
@@ -79,7 +80,6 @@ const createCourse = async (req,res) => {
         )
 
         //update the tag schema
-        
         try {
             for (const eachtagId of allTagsId) {
                 await Tag.findByIdAndUpdate({eachtagId},
@@ -90,6 +90,20 @@ const createCourse = async (req,res) => {
                     }
                 )
             }
+        } catch (error) {
+            console.log('error while pushing this new course into tag ');
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                message : 'error while pushing courses into tags'
+            })
+        }
+
+        //similarly update a category model
+        try {
+            await Category.findOneAndUpdate({name : category} , {
+                $push : {
+                    courses : newCourse._id
+                }
+            })
         } catch (error) {
             console.log('error while pushing this new course into tag ');
             res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({

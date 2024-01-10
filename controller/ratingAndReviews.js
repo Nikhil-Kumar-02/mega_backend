@@ -182,3 +182,10 @@ const getAllRatingOfaCourse = async (req,res) => {
         })
     }
 }
+
+module.exports = {
+    createRating , 
+    getAverageRating,
+    getAllRating , 
+    getAllRatingOfaCourse
+}
