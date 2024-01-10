@@ -10,11 +10,11 @@ const createCourse = async (req,res) => {
         //fetch user details
         //no need to check if user is authorised to do so as already checked authorisation in middleware
         //fetch all the input data like  title , description , price ,  category , tags , thumbnail
-        const {courseName , courseDescription , whatYouWillLearn , price , tag , language} = req.body;
+        const {courseName , category , courseDescription , whatYouWillLearn , price , tag , language} = req.body;
 
         const thumbnail  = req.body.thumbnailImage; 
         //check validity of each of the input
-        if(!courseName || !courseDescription || !whatYouWillLearn || !price || !tag){
+        if(!courseName || !courseDescription || !whatYouWillLearn || !price || !tag || !category){
             res.status(StatusCodes.PARTIAL_CONTENT).json({
                 message : 'all feilds are required'
             })
@@ -61,7 +61,8 @@ const createCourse = async (req,res) => {
             price, 
             language ,
             thumbnail : thumbnailImage.secure_url,
-            tag : allTagsId
+            tag : allTagsId,
+            category
         })
 
         //now add this course to the instructors course list
@@ -119,7 +120,8 @@ const showAllCourses = async (req,res) => {
                                             thumbnail : true,
                                             instructor :true,
                                             reviewAndRatings : true,
-                                            studentsEnrolled : true}).populate("instructor").exec();
+                                            studentsEnrolled : true,
+                                            category : true}).populate("instructor").exec();
 
         res.status(StatusCodes.OK).json({
             message : 'all courses sucessfully fetched' , 
