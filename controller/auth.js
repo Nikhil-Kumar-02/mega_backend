@@ -79,7 +79,7 @@ const signup = async(req,res) => {
                 description : 'please fill the otp'
             })
         }
-
+        
         //find the alloted otp of this user
         const usersOTP = await OTP_Model.find({email}).sort({ createdAt: -1 }).limit(1).exec();
         console.log('fetched uesr is : ',usersOTP)
