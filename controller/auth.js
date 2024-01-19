@@ -69,34 +69,36 @@ function randomHexGenerator(){
 const signup = async(req,res) => {
     try {
         const {firstName , lastName , email , accountType , phoneNumber , password , otp} = req.body;
-        console.log('the incoming body : ' , req.body);
+        console.log('the otp recieved is ',otp)
 
         //we have done all validations before so all data is present and email is valid and new
 
         //check is otp present or not
         if(!otp){
-            res.status(StatusCodes.NO_CONTENT).json({
+            return res.status(StatusCodes.PARTIAL_CONTENT).json({
                 message : 'otp not present',
                 description : 'please fill the otp'
             })
         }
 
         //find the alloted otp of this user
-        const usersOTP = await OTP_Model.find(email).sort({ createdAt: -1 }).limit(1).exec();
-        
+        const usersOTP = await OTP_Model.find({email}).sort({ createdAt: -1 }).limit(1).exec();
+        console.log('fetched uesr is : ',usersOTP)
+
         if(!usersOTP || usersOTP.length == 0){
             res.status(StatusCodes.NOT_FOUND).json({
-                message : "not otp is present",
-                description : "either otp not generated or passed the time limit to verify"
+                message : "no otp is present",
+                description : "either otp not generated or passed the time limit to verify or no otp sent to this email"
             })
         }
 
-        if(usersOTP.otp != otp){
-            res.status(StatusCodes.NOT_ACCEPTABLE).json({
+        if(usersOTP[0].otp !== otp){
+            return res.status(StatusCodes.NOT_ACCEPTABLE).json({
                 message : "otp does not match",
                 description : "you have entered the wrong otp"
             })
         }
+
 
         //all feilds are present and everything is valid so make entry for the user
 
@@ -126,7 +128,7 @@ const signup = async(req,res) => {
 
         res.status(StatusCodes.CREATED).json({
             message : "user created",
-            description : "your account has been sucessfully created and varified"
+            description : "your account has been sucessfully created and verified"
         })
     } catch (error) {
         console.log('error while signing in :' , error);

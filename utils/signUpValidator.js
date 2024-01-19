@@ -2,7 +2,7 @@ const {ReasonPhrases,StatusCodes,getReasonPhrase,getStatusCode} = require('http-
 const User = require('../model/user');
 
 const validateSignUpData = async (req,res,next) => {
-    const {firstName , lastName , email , accountType , phoneNumber , password , confirmPassword} = req.body;
+    const {firstName , lastName , email , phoneNumber , password , confirmPassword} = req.body;
 
     //validate data
     if(!email || !password || !firstName || !lastName || !phoneNumber ||  !confirmPassword){
@@ -14,7 +14,7 @@ const validateSignUpData = async (req,res,next) => {
 
     //check if the email is a valid one
     let regex = /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
-    let isValid = regex.test('nik123.pmsnick@g.com');
+    let isValid = regex.test(email);
     
     if(!isValid){
         res.status(StatusCodes.EXPECTATION_FAILED).json({
@@ -24,7 +24,7 @@ const validateSignUpData = async (req,res,next) => {
     }
 
     //check user mail already exists or not
-    const checkUserMail = await User.findOne(email);
+    const checkUserMail = await User.findOne({email});
     if(checkUserMail){
         res.status(StatusCodes.FORBIDDEN).json({
             message : "user already exists",
@@ -41,7 +41,6 @@ const validateSignUpData = async (req,res,next) => {
     }
 
     next();
-    
 }
 
 module.exports = validateSignUpData;
