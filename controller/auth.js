@@ -6,7 +6,6 @@ const Profile= require('../model/profile');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const cookieParser = require('cookie-parser')
 
 //send otp as to create account we have to verify the mail
 const generateOpt = async (req,res) => {
@@ -142,7 +141,6 @@ const signup = async(req,res) => {
 
 
 //login
-
 const userLogin = async (req,res) => {
     try {
         //get data from from req body
@@ -154,7 +152,7 @@ const userLogin = async (req,res) => {
             })
         }
         //check if the user exits or not that is registered or not
-        const findUser = await User.findOne(email);
+        const findUser = await User.findOne({email});
         if(!findUser){
             res.status(StatusCodes.NOT_FOUND).json({
                 message : 'user not found',
