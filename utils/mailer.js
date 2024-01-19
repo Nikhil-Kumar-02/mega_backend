@@ -14,9 +14,11 @@ const sendEmail = async (userEmail , body) => {
         from: process.env.MY_EMAIL,
         to: userEmail,
         subject: 'From StudyNotion',
-        text: `<h2>${body}<h2>`
+        html: `
+        <h2>${body}<h2>
+        `,
     };
-    const mailresult = await mailTransporter.sendMail(mailDetails, function(err, data) {
+    const mailresult =  mailTransporter.sendMail(mailDetails, function(err, data) {
         if(err) {
             console.log('Error Occurs');
         } else {

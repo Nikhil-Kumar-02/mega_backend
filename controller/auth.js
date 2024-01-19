@@ -32,14 +32,17 @@ const generateOpt = async (req,res) => {
         //here means this otp is not present in the db
 
         //now we have send this otp to the user for verification of email
+        // const mailResponse = await sendEmail(email , `${generatedOTP} is your otp for the verification of your gmail account`)
+        //no need to send otp as we have configured the pre save hook for this see in model
         //also we have to save this opt for verification
         //both logic in the otp model to send it to that model as prehook exists there
-        await OTP_Model.create({email , otp : generatedOTP});
+        const otpmodelResponse = await OTP_Model.create({email , otp : generatedOTP});
         //now to that email this otp has been sent and then on sucessful transmission an instance will
         //be generated into the db with the email and opt which will be deleted after 5 mins
 
         res.status(StatusCodes.OK).json({
-            message : "otp Sent sucessfully"
+            message : "otp Sent sucessfully",
+            otpmodelResponse
         })
     } catch (error) {
         console.log('error while trying to send otp',error);
@@ -207,4 +210,11 @@ const updatePassword = async(req,res) => {
     //update password in db
     //send email for updation of password
     //return response
+}
+
+module.exports = {
+    generateOpt,
+    signup,
+    userLogin,
+    updatePassword
 }

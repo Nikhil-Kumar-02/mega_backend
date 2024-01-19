@@ -22,7 +22,7 @@ const MySchema = new Schema({
 async function sendVerificationMail(email , otp) {
     try {
         const mailresult = await sendEmail(email , otp);
-        console.log("email sent sucessfully : " , mailresult);
+        console.log("Email sent sucessfully : " , mailresult);
     } catch (error) {
         console.log("error occured while sending mail" , error);
         throw error;

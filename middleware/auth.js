@@ -20,10 +20,10 @@ const auth = async (req,res,next) => {
 
         //verify token
         try {
-            const decodeToken = jwt.verify(token , process.env.JWT_SECRET);
-            console.log('the decode user details from the token is : ' , decodeToken);
+            const decodedToken = jwt.verify(token , process.env.JWT_SECRET);
+            console.log('the decode user details from the token is : ' , decodedToken);
             //now add this decoded token to the req body
-            req.user = decodeToken;
+            req.user = decodedToken;
             //user object has all the user details
         } catch (error) {
             console.log('error while verifying token');
