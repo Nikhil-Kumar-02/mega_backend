@@ -2,6 +2,7 @@
 const { StatusCodes } = require('http-status-codes');
 const User = require('../model/user');
 const sendEmail = require('../utils/mailer');
+const crypto = require('crypto');
 
 //reset password token that is this will be responsible to sending the reset webpage link
 const resetPasswordToken = async (req,res) => {
@@ -10,14 +11,15 @@ const resetPasswordToken = async (req,res) => {
         const email = req.body.email;
         //validate the email if present or not
         if(!email){
-            res.status(StatusCodes.NO_CONTENT).json({
+            return res.status(StatusCodes.PARTIAL_CONTENT).json({
                 message : "email not present"
             })
         }
 
-        const findUser = await User.findOne(email);
+        const findUser = await User.findOne({email});
+
         if(!findUser){
-            res.status(StatusCodes.NOT_FOUND).json({
+            return res.status(StatusCodes.NOT_FOUND).json({
                 message : 'your email id is not registered with us',
             })
         }
@@ -26,10 +28,10 @@ const resetPasswordToken = async (req,res) => {
         const token = crypto.randomUUID();
 
         //update user by adding token and expiration time
-        const updatedDetails = await User.findOneAndUpdate(email , 
+        const updatedDetails = await User.findOneAndUpdate({email} , 
                                                     {
                                                         token : token,
-                                                        resetPasswordExpires : Date.now() + 5*50*1000
+                                                        resetPasswordExpires : Date.now() + 60*60*1000
                                                     } , {new : true});
         
         //create url
@@ -37,17 +39,19 @@ const resetPasswordToken = async (req,res) => {
 
         //send email containing this url
         const mailresult = await sendEmail(email , `Reset Password Link :  ${url}`);
-
+    
         //return response
-        res.status(StatusCodes.OK).json({
+        return res.status(StatusCodes.OK).json({
             message : 'sucessfully mailed you the link for resetting the password',
-            desdription : 'click the link to redirect to website for password updation'
+            description : 'click the link to redirect to website for password updation',
+            url,
+            mailresult,
+            updatedDetails
         })
     } catch (error) {
         console.log('error in controller -> resetPasswordToken ')
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            message : 'sucessfully mailed you the link for resetting the password',
-            desdription : 'click the link to redirect to website for password updation'
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message : 'unable to mail you the link for resetting the password',
         })
     }
 
@@ -71,7 +75,7 @@ const resetPassword = async (req,res) => {
             })
         }
         //get user details from token as now token is also a part of user schema
-        const userDetails = await User.findOne(token);
+        const userDetails = await User.findOne({token});
 
         //find user and check if the user has this token within the expiry
         if(!userDetails){
@@ -80,17 +84,18 @@ const resetPassword = async (req,res) => {
                 message : "token was not found"
             }) 
         }
+
         if(userDetails.resetPasswordExpires < Date.now()){
             //means the token has expired that why we are ahead of time
             console.log('current time exceeds the token valid time');
-            res.status(StatusCodes.GATEWAY_TIMEOUT).json({
+            return res.status(StatusCodes.NOT_MODIFIED).json({
                 message : 'current time exceeds the token valid time',
                 description : "the password reset should be done within 5 mins of link generation"
             })
         }
 
         //if everything goes right update the password
-        const updatedDetails = await User.findOneAndUpdate(token , password , {new :true});
+        const updatedDetails = await User.findOneAndUpdate({token} , password , {new :true});
         res.status(StatusCodes.OK).json({
             message : 'your password has been sucessfully updated',
         })
