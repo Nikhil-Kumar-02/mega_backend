@@ -35,10 +35,7 @@ const MySchema = new Schema({
     courses : [{
         type : mongoose.Schema.Types.ObjectId,
         ref : 'Courses'
-    }],  
-    image : {
-        type : String,
-    },
+    }], 
     additionalDetails : {
         type : mongoose.Schema.Types.ObjectId,
         ref : 'Profile'

@@ -7,12 +7,12 @@ require('dotenv').config();
 const auth = async (req,res,next) => {
     try {
         //extract token
-        const {token} = req.cookies.token ||
+        const token = req.cookies.token ||
                         req.body.token ||
-                        req.header("Authorisation").replace("Bearer " , '');
+                        (req.header.Authorisation && req.header.Authorisation.replace("Bearer " , '') );
 
         if(!token){
-            res.status(StatusCodes.NOT_FOUND).json({
+            return res.status(StatusCodes.NOT_FOUND).json({
                 message : "token not found",
                 description : "sign up or log in to create a token"
             })
@@ -27,7 +27,7 @@ const auth = async (req,res,next) => {
             //user object has all the user details
         } catch (error) {
             console.log('error while verifying token');
-            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 message : "error while verifying token",
                 error : error
             })

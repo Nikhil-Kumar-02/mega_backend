@@ -3,10 +3,12 @@ const Course = require('../model/courses');
 const Profile = require('../model/profile');
 const User = require('../model/user');
 const { StatusCodes } = require('http-status-codes');
+const cloudinaryFileUpload = require('../utils/imageUploader');
+require('dotenv').config();
 
 //update profile as dummy profile has already been created
 
-const updateProfile = async(req,res) => {
+const updateProfileData = async(req,res) => {
     try {
         //fetch data
         const {gender , dob="" , about=""  , contactNumber=""} = req.body;
@@ -25,6 +27,35 @@ const updateProfile = async(req,res) => {
         console.log('error while updating the profile' , error);
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message : 'error while updating the users profile details',
+            error 
+        })
+    }
+}
+
+const updateProfilePhoto = async (req,res) => {
+    try {
+        const {displayPicture} = req.files;
+
+        //extract the user id from the decripted token which is stored in the req.user
+        const userId = req.user.id;
+
+        const userDetails = await User.findById(userId);
+        const profileId = userDetails.additionalDetails;
+        
+        const cloudinaryResponse = await cloudinaryFileUpload(displayPicture , process.env.profilePictures_Folder_Name);
+
+        const updatedProfileResponse = await Profile.findByIdAndUpdate(profileId , {image : cloudinaryResponse.secure_url});
+
+        res.status(StatusCodes.CREATED).json({
+            message : 'your profile picture has been updated sucessfully',
+            updatedProfileResponse,
+            cloudinaryResponse
+        })
+
+    } catch (error) {
+        console.log('error while updating the profile picture' , error);
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message : 'error while updating the users profile picture',
             error 
         })
     }
@@ -107,7 +138,8 @@ const getAllUserDetails = async (req,res) => {
 }
 
 module.exports = {
-    updateProfile ,
+    updateProfileData ,
     deleteUserPermanently,
-    getAllUserDetails
+    getAllUserDetails,
+    updateProfilePhoto
 }

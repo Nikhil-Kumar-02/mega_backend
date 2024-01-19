@@ -8,6 +8,7 @@ const createSubSection = async (req,res) => {
     try {
         //fetch data
         const {title , timeDuration , description , sectionId} = req.body;
+        
         const video = req.files.videoFile;
         //validate data
         if(!title || !timeDuration || !description || !sectionId){

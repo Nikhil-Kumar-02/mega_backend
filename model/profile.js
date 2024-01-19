@@ -10,6 +10,9 @@ const MySchema = new Schema({
         type :String,
         trim : true
     },
+    image : {
+        type : String,
+    },
     about : {
         type : String,
         trim : true
