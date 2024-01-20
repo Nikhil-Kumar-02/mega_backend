@@ -11,12 +11,14 @@ const createCourse = async (req,res) => {
         //fetch user details
         //no need to check if user is authorised to do so as already checked authorisation in middleware
         //fetch all the input data like  title , description , price ,  category , tags , thumbnail
-        const {courseName , category , courseDescription , whatYouWillLearn , price , tag , language} = req.body;
+        const {courseName , category , courseDescription , whatYouWillLearn , price , tag , language , instructions} = req.body;
 
-        const thumbnail  = req.body.thumbnailImage; 
+        console.log('the input request is : ' , req.body)
+
+        const thumbnail  = req.files.courseThumbnail; 
         //check validity of each of the input
         if(!courseName || !courseDescription || !whatYouWillLearn || !price || !tag || !category){
-            res.status(StatusCodes.PARTIAL_CONTENT).json({
+            return res.status(StatusCodes.PARTIAL_CONTENT).json({
                 message : 'all feilds are required'
             })
         }
@@ -28,17 +30,18 @@ const createCourse = async (req,res) => {
 
         if(!instructorDetails){
             console.log('instructor not found ');
-            res.status(StatusCodes.NOT_FOUND).json({
+            return res.status(StatusCodes.NOT_FOUND).json({
                 message : 'unable to find a instructor with this id'
             })
         }
 
         //check if the tags recieved are valid or not
         const allTagsId = [];
-        for (const eachtag of tag) {
-            const findTag = await Tag.findOne({ name : eachtag });
+        const jsonifiedtag = JSON.parse(tag);
+        for (const eachtag of jsonifiedtag) {
+            const foundTag = await Tag.findOne({ name : eachtag });
         
-            if (!findTag) {
+            if (!foundTag) {
                 console.log(`Tag '${eachtag}' not found in the database`);
                 return res.status(StatusCodes.NOT_ACCEPTABLE).json({
                     message: 'Entered tag is not a valid tag',
@@ -46,12 +49,23 @@ const createCourse = async (req,res) => {
                 });
             }
             else{
-                allTagsId.push(findTag._id);
+                allTagsId.push(foundTag._id);
             }
+        }
+        console.log('all tags found ids' , allTagsId);
+        //find the category id from the recieved category name
+        const categoryId = await Category.findOne({name : category});
+
+        if(!categoryId){
+            console.log("no such input category found");
+            return res.status(StatusCodes.NOT_FOUND).json({
+                message : "there doesnot exists any such category"
+            })
         }
 
         //upload image to cloudinary
-        const thumbnailImage = await cloudinaryFileUpload(thumbnail , process.env.thubmnails_Folder_Name, null ,'50')
+        console.log('the thumbnail recieved is  : ' , thumbnail);
+        const cloudinaryThumbnailImageResponse = await cloudinaryFileUpload(thumbnail , process.env.thubmnails_Folder_Name, null ,'50')
         
         //create an entry of new course
         const newCourse = await Course.create({
@@ -61,9 +75,10 @@ const createCourse = async (req,res) => {
             whatYouWillLearn , 
             price, 
             language ,
-            thumbnail : thumbnailImage.secure_url,
+            thumbnail : cloudinaryThumbnailImageResponse.secure_url,
             tag : allTagsId,
-            category
+            category : categoryId,
+            instructions
         })
 
         //now add this course to the instructors course list
@@ -82,7 +97,7 @@ const createCourse = async (req,res) => {
         //update the tag schema
         try {
             for (const eachtagId of allTagsId) {
-                await Tag.findByIdAndUpdate({eachtagId},
+                await Tag.findByIdAndUpdate(eachtagId,
                     {
                         $push : {
                             course : newCourse._id,
@@ -91,8 +106,8 @@ const createCourse = async (req,res) => {
                 )
             }
         } catch (error) {
-            console.log('error while pushing this new course into tag ');
-            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            console.log('error while pushing this new course into all tags ');
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 message : 'error while pushing courses into tags'
             })
         }
@@ -105,26 +120,28 @@ const createCourse = async (req,res) => {
                 }
             })
         } catch (error) {
-            console.log('error while pushing this new course into tag ');
-            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            console.log('error while pushing this new course into category ');
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 message : 'error while pushing courses into tags'
             })
         }
         
         //now return response
-        res.status(StatusCodes.OK).json({
+        return res.status(StatusCodes.OK).json({
             message : 'sucessfuly created the course and also done all immediate steps',
             data : newCourse
         })
 
     } catch (error) {
         console.log('error while creating course : ' , error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message : 'unable to create a course',
             error : error
         })
     }
 }
+
+
 
 //get all courses
 const showAllCourses = async (req,res) => {
@@ -137,13 +154,13 @@ const showAllCourses = async (req,res) => {
                                             studentsEnrolled : true,
                                             category : true}).populate("instructor").exec();
 
-        res.status(StatusCodes.OK).json({
+        return res.status(StatusCodes.OK).json({
             message : 'all courses sucessfully fetched' , 
             data : allCourses
         })
     } catch (error) {
         console.log('error while fetching all courses' , error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message : 'error while fetching all courses',
             error : error
         })
@@ -176,26 +193,26 @@ const getCompleteCourseDetails = async (req,res) => {
 
         if(!detailedCourseResponse){
             console.log('no course found from the input course id');
-            res.status(StatusCodes.NOT_FOUND).json({
+            return res.status(StatusCodes.NOT_FOUND).json({
                 message : 'no course found from the input course id'
             })
         }
 
         //return response
-        res.status(StatusCodes.OK).json({
+        return res.status(StatusCodes.OK).json({
             message : 'course complete data fetched from db',
             data : detailedCourseResponse
         })
     } catch (error) {
         console.log('error while fetching the complete course details');
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message: 'error while fetching the complete course details',
             error
         })
     }
 }
 
-exports.default = {
+module.exports = {
     createCourse ,
     showAllCourses,
     getCompleteCourseDetails
