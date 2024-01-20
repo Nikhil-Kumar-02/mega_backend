@@ -10,6 +10,10 @@ const MySchema = new Schema({
         type : String,
         trim : true
     },
+    cetegoryCreator : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : "User"
+    },
     courses : [
         {
             type : mongoose.Schema.Types.ObjectId,

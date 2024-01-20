@@ -35,7 +35,7 @@ const auth = async (req,res,next) => {
         next();
     } catch (error) {
         console.log('in auth middleware',error);
-        res.status(StatusCodes.BAD_REQUEST).json({
+        return res.status(StatusCodes.BAD_REQUEST).json({
             message : "not able to authenticate a user",
         })
     }
@@ -47,7 +47,7 @@ const isStudent = async (req,res,next) =>{
         //req.user because we have added the user details in the user object of req ABOVE
         if(req.user.accountType != "Student"){
             console.log('in is student middle ware try block');
-            res.status(StatusCodes.UNAUTHORIZED).json({
+            return res.status(StatusCodes.UNAUTHORIZED).json({
                 message : 'error while verifying the student',
                 description : "you are not a student , this route is only for students"
             })
@@ -55,7 +55,7 @@ const isStudent = async (req,res,next) =>{
         next();
     } catch (error) {
         console.log('in is student middle ware');
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message : 'error while verifying the student'
         })
     }
@@ -67,7 +67,7 @@ const isAdmin = async (req,res,next) =>{
     try {
         if(req.user.accountType != "Admin"){
             console.log('in is Admin middle ware try block');
-            res.status(StatusCodes.UNAUTHORIZED).json({
+            return res.status(StatusCodes.UNAUTHORIZED).json({
                 message : 'error while verifying the Admin',
                 description : "you are not a Admin , this route is only for Admin"
             })
@@ -75,7 +75,7 @@ const isAdmin = async (req,res,next) =>{
         next();
     } catch (error) {
         console.log('in is Admin middle ware');
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message : 'error while verifying the Admin'
         })
     }
@@ -87,7 +87,7 @@ const isInstructor = async (req,res,next) =>{
     try {
         if(req.user.accountType != "Instructor"){
             console.log('in is Instructor middle ware try block');
-            res.status(StatusCodes.UNAUTHORIZED).json({
+            return res.status(StatusCodes.UNAUTHORIZED).json({
                 message : 'error while verifying the Instructor',
                 description : "you are not a Instructor , this route is only for Instructor"
             })
@@ -95,7 +95,7 @@ const isInstructor = async (req,res,next) =>{
         next();
     } catch (error) {
         console.log('in is Instructor middle ware');
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message : 'error while verifying the Instructor'
         })
     }

@@ -5,16 +5,18 @@ const Courses = require('../model/courses');
 const createCategory = async (req,res) => {
     try {
         const {name , description} = req.body;
+        const userId = req.user.id;
         if(!name){
-            res.status(StatusCodes.PARTIAL_CONTENT).json({
+            return res.status(StatusCodes.PARTIAL_CONTENT).json({
                 message : 'all feilds are mandatory',
             })
         }
-        const createdCategory = await Category.create(name , description);
+        const createdCategory = await Category.create({
+                                    name , description , cetegoryCreator : userId});
 
-        res.status(StatusCodes.OK).json({
+        return res.status(StatusCodes.OK).json({
             message : 'a category has been created sucessfully',
-            data : createCategory
+            data : createdCategory
         })
     } catch (error) {
         console.log('error while creating a category' , error);
@@ -28,13 +30,13 @@ const createCategory = async (req,res) => {
 const showAllCategories = async (req,res) => {
     try {
         const allCategories = await Category.find({} , {name:true , description : true});
-        res.status(StatusCodes.OK).json({
+        return res.status(StatusCodes.OK).json({
             message : 'all data fetched',
             data : allCategories
         })
     } catch (error) {
         console.log('error while viewing all categories' , error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message : 'error while veiwing all categories',
             error
         });
