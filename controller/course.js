@@ -189,6 +189,7 @@ const getCompleteCourseDetails = async (req,res) => {
             }
         })
         .populate('reviewAndRatings')
+        .populate('tag')
         .populate('category').exec();   
 
         if(!detailedCourseResponse){
