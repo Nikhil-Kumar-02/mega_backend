@@ -4,6 +4,7 @@ const {createTag , showAllTags} = require('../controller/tags');
 const {auth , isAdmin, isInstructor} = require('../middleware/auth');
 const {createCourse , showAllCourses , getCompleteCourseDetails} = require('../controller/course');
 const {createSection , deleteSection , updateSection} = require("../controller/section");
+const {createSubSection , deleteSubsection , updateSubSection} = require('../controller/subsection');
 
 const router = express.Router();
 
@@ -21,5 +22,11 @@ router.get('/showAllTags' , showAllTags)
 router.post('/addSection' , auth , isInstructor , createSection);
 router.post('/updateSection' , auth , isInstructor , updateSection);
 router.post('/deleteSection' , auth , isInstructor , deleteSection);
+
+router.post('/addSubSection' , createSubSection);
+router.post('/updateSubSection' , updateSubSection);
+router.post('/deleteSubSection' , deleteSubsection);
+
+
 
 module.exports = router;
