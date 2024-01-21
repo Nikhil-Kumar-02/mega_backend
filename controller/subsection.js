@@ -3,6 +3,7 @@ const Section = require('../model/section');
 const { StatusCodes } = require('http-status-codes');
 const cloudinaryFileUpload = require('../utils/imageUploader');
 require('dotenv').config();
+const {deleteFromCloudinary} = require('../utils/deleteUploadedData');
 
 const createSubSection = async (req,res) => {
     try {
@@ -61,16 +62,22 @@ const deleteSubsection = async (req,res) => {
             })
         }
         //delete subsection and deleted its instance from the section as well
-        await Subsection.findByIdAndDelete(subSectionId);
+        const deletedSubsection = await Subsection.findByIdAndDelete(subSectionId);
+
         const updatedSectionDetails = await Section.findOneAndUpdate({_id : sectionId} , {
             $pull : {
                 subSection : subSectionId
             }
-        },{new : true}).populate('subSection');
+        },{new : true})//.populate('subSection');
+
+        //also remove its presence from the cloudinary
+        const cloudinaryResponse = await deleteFromCloudinary("video" , deletedSubsection.videoUrl);
+        
         //return response
         return res.status(StatusCodes.OK).json({
             message : 'subsection deleted sucessfully',
-            updatedSectionDetails
+            updatedSectionDetails,
+            cloudinaryResponse
         })
     } catch (error) {
         console.log('error while deleting a subsection' , error);

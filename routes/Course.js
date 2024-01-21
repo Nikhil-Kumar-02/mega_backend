@@ -12,7 +12,7 @@ router.post('/createCategory' ,auth , isAdmin , createCategory);
 router.get('/showAllCategories' , showAllCategories)
 
 router.post('/createCourse' , auth , isInstructor , createCourse);
-router.get('/getAllCourses' , auth , showAllCourses);
+router.get('/getAllCourses' , showAllCourses);
 router.post('/getFullCourseDetails' , auth  , getCompleteCourseDetails);
 
 router.post('/createTag' , auth , isInstructor , createTag);
@@ -23,9 +23,9 @@ router.post('/addSection' , auth , isInstructor , createSection);
 router.post('/updateSection' , auth , isInstructor , updateSection);
 router.post('/deleteSection' , auth , isInstructor , deleteSection);
 
-router.post('/addSubSection' , createSubSection);
-router.post('/updateSubSection' , updateSubSection);
-router.post('/deleteSubSection' , deleteSubsection);
+router.post('/addSubSection' , auth , isInstructor , createSubSection);
+router.post('/updateSubSection' , auth , isInstructor , updateSubSection);
+router.post('/deleteSubSection' , auth , isInstructor , deleteSubsection);
 
 
 
