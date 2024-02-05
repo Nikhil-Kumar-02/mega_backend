@@ -5,6 +5,7 @@ const {StatusCodes} = require('http-status-codes');
 const Profile= require('../model/profile');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const sendEmail = require('../utils/mailer');
 require('dotenv').config();
 
 //send otp as to create account we have to verify the mail
@@ -12,6 +13,17 @@ const generateOpt = async (req,res) => {
     try {
         //first generate opt from the package
         const {email} = req.body;
+
+        //check if someone has already registered with this email or not
+        const findUser = await User.findOne({email : email});
+
+        if(findUser){
+            console.log('the user is : ' , findUser)
+            return res.status(StatusCodes.NOT_ACCEPTABLE).json({
+                message : "User Already Exists with this email",
+                discription : "sign up with a brand new email"
+            })
+        }
 
         let generatedOTP = otpGenerator.generate(6, { 
             lowerCaseAlphabets : false , upperCaseAlphabets: false, specialChars: false 
@@ -67,6 +79,7 @@ function randomHexGenerator(){
 //signup
 const signup = async(req,res) => {
     try {
+        console.log("request reached here in signup")
         const {firstName , lastName , email , accountType , phoneNumber , password , otp} = req.body;
         console.log('the otp recieved is ',otp)
 
@@ -75,7 +88,7 @@ const signup = async(req,res) => {
         //check is otp present or not
         if(!otp){
             return res.status(StatusCodes.PARTIAL_CONTENT).json({
-                message : 'otp not present',
+                message : 'OTP not present',
                 description : 'please fill the otp'
             })
         }
@@ -93,7 +106,7 @@ const signup = async(req,res) => {
 
         if(usersOTP[0].otp !== otp){
             return res.status(StatusCodes.NOT_ACCEPTABLE).json({
-                message : "otp does not match",
+                message : "OTP does not match",
                 description : "you have entered the wrong otp"
             })
         }
@@ -125,13 +138,13 @@ const signup = async(req,res) => {
 
         console.log('the newly added user is : ' ,  newUser);
 
-        res.status(StatusCodes.CREATED).json({
-            message : "user created",
+        return res.status(StatusCodes.CREATED).json({
+            message : "Account created",
             description : "your account has been sucessfully created and verified"
         })
     } catch (error) {
         console.log('error while signing in :' , error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message : "account not created",
             description : "your account was not created due to some unexpected error",
             error : error
@@ -152,40 +165,40 @@ const userLogin = async (req,res) => {
             })
         }
         //check if the user exits or not that is registered or not
-        const findUser = await User.findOne({email});
-        if(!findUser){
+        const foundUser = await User.findOne({email});
+        if(!foundUser){
             res.status(StatusCodes.NOT_FOUND).json({
-                message : 'user not found',
+                message : 'User not found',
                 description : 'you need to sign up first in order to log in'
             })
         }
         //match password and generate jwt token
-        const passwordMatch = await bcrypt.compare(password, findUser.password);
+        const passwordMatch = await bcrypt.compare(password, foundUser.password);
         if(!passwordMatch){
             res.status(StatusCodes.CONFLICT).json({
-                message : 'password does not match',
+                message : 'Incorrect Password',
                 description : 'please enter the correct login credentials'
             })
         }
         else{
             const payload = {
                 email , 
-                id : findUser._id,
-                accountType : findUser.accountType
+                id : foundUser._id,
+                accountType : foundUser.accountType
             }
 
             const token = jwt.sign(payload , process.env.JWT_SECRET , {expiresIn : '2h'});
             //create cookie and send response
-            findUser.password = undefined;
+            foundUser.password = undefined;
 
             const options = {
                 expires : new Date(Date.now() + 3*24*60*60*1000),
                 httpOnly : true
             }
             
-            res.cookie("token" , token , options).status(StatusCodes.ACCEPTED).json({
+            return res.cookie("token" , token , options).status(StatusCodes.ACCEPTED).json({
                 token,
-                findUser,
+                foundUser,
                 message : 'user logged in sucessfully'
             })
         }
@@ -204,12 +217,49 @@ const userLogin = async (req,res) => {
 
 //change password
 const updatePassword = async(req,res) => {
-    //get data from req body
-    //get oldpasword newpassword confirm password
-    //valdation
-    //update password in db
-    //send email for updation of password
-    //return response
+    try { 
+        //get data from req body
+        //get oldpasword newpassword
+        const {currentPassword , newPassword} = req.body;
+        const userId = req.user.id; 
+        const userEmail = req.user.email;
+
+        //valdation
+        if(!currentPassword || !newPassword){
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message : "Both feilds are Compulsory",
+                description : "you need to enter both current password and new password",
+            })
+        }
+        //update password in db
+        const foundUser = await User.findById(userId);
+
+        //match password and generate jwt token
+        const passwordMatch = await bcrypt.compare(currentPassword, foundUser.password);
+
+        if(!passwordMatch){
+            return res.status(StatusCodes.CONFLICT).json({
+                message : 'Incorrect Current Password',
+                description : 'please enter the correct current password'
+            })
+        }
+
+        foundUser.password = newPassword;
+        await foundUser.save();
+
+        //send email for updation of password
+        const mailResponse = await sendEmail(userEmail , "Your LogIn Password has been updated Sucessfully.")
+        //return response
+        return res.status(StatusCodes.OK).json({
+            message : 'Your password has been Updated Sucessfully'
+        })
+
+    } catch (error) {
+        console.log("error while updatting the password in auth of controller" , error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message : "Error while updating the Password",
+        })
+    }
 }
 
 module.exports = {

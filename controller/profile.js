@@ -11,21 +11,21 @@ require('dotenv').config();
 const updateProfileData = async(req,res) => {
     try {
         //fetch data
-        const {gender , dob="" , about=""  , contactNumber=""} = req.body;
+        const {gender , dob="" , about=""  , phoneNumber=""} = req.body;
         const userId = req.user.id;
         //find the profile then update it
         const userDetails = await User.findById(userId);
         const profileId = userDetails.additionalDetails;
         const updatedProfileDetails = await Profile.findByIdAndUpdate(profileId , {
-            gender , dob , contactNumber , about} , {new : true});
+            gender , dob , contactNumber : phoneNumber , about} , {new : true});
         //return response
-        res.status(StatusCodes.OK).json({
+        return res.status(StatusCodes.OK).json({
             message : 'sucessfully updated the user profile',
             updatedProfileDetails
         })
     } catch (error) {
         console.log('error while updating the profile' , error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message : 'error while updating the users profile details',
             error 
         })
@@ -44,7 +44,7 @@ const updateProfilePhoto = async (req,res) => {
 
         const updatedProfileResponse = await User.findByIdAndUpdate(userId , {image : cloudinaryResponse.secure_url}, {new:true});
 
-        res.status(StatusCodes.CREATED).json({
+        return res.status(StatusCodes.CREATED).json({
             message : 'your profile picture has been updated sucessfully',
             updatedProfileResponse,
             cloudinaryResponse
@@ -52,7 +52,7 @@ const updateProfilePhoto = async (req,res) => {
 
     } catch (error) {
         console.log('error while updating the profile picture' , error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message : 'error while updating the users profile picture',
             error 
         })
@@ -70,7 +70,7 @@ const deleteUserPermanently = async (req,res) => {
         //validate data
         if(!userId){
             console.log('cannnot find userid while trying to delete user details');
-            res.status(StatusCodes.PARTIAL_CONTENT).json({
+            return res.status(StatusCodes.PARTIAL_CONTENT).json({
                 message : 'cannnot find userid while trying to delete user details'
             })
         }
@@ -106,12 +106,12 @@ const deleteUserPermanently = async (req,res) => {
         await User.findByIdAndDelete(userDetails._id);
 
         //return the response
-        res.status(StatusCodes.OK).json({
+        return res.status(StatusCodes.OK).json({
             message : 'your details has been sucessfully delted from the data base'
         })
     } catch (error) {
         console.log('error while deleting a user' , error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message : 'error while deleting a user',
             error 
         })
@@ -122,13 +122,13 @@ const getAllUserDetails = async (req,res) => {
     try {
         const userId = req.user.id;
         const userFullDetails = await User.findById(userId).populate('additionalDetails');
-        res.status(StatusCodes.OK).json({
+        return res.status(StatusCodes.OK).json({
             message : 'data fetched sucesfully',
             userFullDetails,
         })
     } catch (error) {
         console.log('error while fetching the user details', error);
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message : 'error while trying to fetch the user details',
             error,
         })

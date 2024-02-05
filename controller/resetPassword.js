@@ -9,19 +9,23 @@ const resetPasswordToken = async (req,res) => {
     try {
         //get email from the req
         const email = req.body.email;
+        console.log(email);
         //validate the email if present or not
         if(!email){
             return res.status(StatusCodes.PARTIAL_CONTENT).json({
+                sucess : false,
                 message : "email not present"
             })
         }
 
         const findUser = await User.findOne({email});
+        console.log('user found : ' , findUser);
 
         if(!findUser){
             return res.status(StatusCodes.NOT_FOUND).json({
-                message : 'your email id is not registered with us',
-            })
+                sucess : false,
+                message : 'Your email id is not registered with us',
+            }) 
         }
 
         //generate token
@@ -42,6 +46,7 @@ const resetPasswordToken = async (req,res) => {
     
         //return response
         return res.status(StatusCodes.OK).json({
+            sucess : true,
             message : 'sucessfully mailed you the link for resetting the password',
             description : 'click the link to redirect to website for password updation',
             url,
@@ -51,6 +56,7 @@ const resetPasswordToken = async (req,res) => {
     } catch (error) {
         console.log('error in controller -> resetPasswordToken ')
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            sucess : false,
             message : 'unable to mail you the link for resetting the password',
         })
     }
@@ -65,11 +71,13 @@ const resetPassword = async (req,res) => {
     try {
         //extract the email newpassword , confirmNewPassword
         const {password , confirmPassword , token } = req.body;
+
+        console.log(req.body);
         //token is in the body cuz frontend put it there that how babbar used it
         //validation on inputs recieved
         if(password != confirmPassword){
             console.log('password not equal');
-            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 message : "password not equal",
                 description : "both password and confirm password should be same"
             })
@@ -80,29 +88,38 @@ const resetPassword = async (req,res) => {
         //find user and check if the user has this token within the expiry
         if(!userDetails){
             console.log('token not found');
-            res.status(StatusCodes.BAD_REQUEST).json({
-                message : "token was not found"
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message : "Token not found"
             }) 
         }
 
         if(userDetails.resetPasswordExpires < Date.now()){
             //means the token has expired that why we are ahead of time
             console.log('current time exceeds the token valid time');
-            return res.status(StatusCodes.NOT_MODIFIED).json({
-                message : 'current time exceeds the token valid time',
+            return res.status(StatusCodes.NOT_ACCEPTABLE).json({
+                message : 'Token expired , Generate email again',
                 description : "the password reset should be done within 5 mins of link generation"
             })
         }
 
         //if everything goes right update the password
-        const updatedDetails = await User.findOneAndUpdate({token} , password , {new :true});
-        res.status(StatusCodes.OK).json({
-            message : 'your password has been sucessfully updated',
+        // const updatedDetails = await User.findOneAndUpdate({token} , {password} , {new :true});
+        // console.log('updated user details is : ' , updatedDetails);
+        //above wont work as this will by pass the pre hook we can use the save one or below  one
+        // const updatedDetails = await User.findByIdAndUpdate(userDetails._id , {password} , {new :true});
+
+        //or
+        console.log("reached here" , userDetails)
+        userDetails.password = password;
+        await userDetails.save();
+        // console.log('updated user details is : ' ,d  updatedDetails);
+        return res.status(StatusCodes.OK).json({
+            message : 'Your password has been sucessfully updated',
         })
 
     } catch (error) {
         console.log('error in controller -> resetpassword.js -> resetpassword');
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message : "error while trying to reset the password"
         })
     }

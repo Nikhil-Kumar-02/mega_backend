@@ -9,11 +9,11 @@ const auth = async (req,res,next) => {
         //extract token
         const token = req.cookies.token ||
                         req.body.token ||
-                        (req.header.Authorisation && req.header.Authorisation.replace("Bearer " , '') );
+                        (req.headers.authorization && req.headers.authorization.replace("Bearer " , '') );
 
         if(!token){
             return res.status(StatusCodes.NOT_FOUND).json({
-                message : "token not found",
+                message : "Token not found",
                 description : "sign up or log in to create a token"
             })
         }
@@ -28,7 +28,7 @@ const auth = async (req,res,next) => {
         } catch (error) {
             console.log('error while verifying token');
             return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-                message : "error while verifying token",
+                message : "Token Expired",
                 error : error
             })
         }

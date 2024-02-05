@@ -6,7 +6,8 @@ const validateSignUpData = async (req,res,next) => {
 
     //validate data
     if(!email || !password || !firstName || !lastName || !phoneNumber ||  !confirmPassword){
-        res.status(StatusCodes.PARTIAL_CONTENT).json({
+        console.log('the recieved data is : ' , req.body)
+        return res.status(StatusCodes.NOT_ACCEPTABLE).json({
             message : "All feilds are mandatory",
             description : "All feilds are mandatory"
         })
@@ -17,7 +18,7 @@ const validateSignUpData = async (req,res,next) => {
     let isValid = regex.test(email);
     
     if(!isValid){
-        res.status(StatusCodes.EXPECTATION_FAILED).json({
+        return res.status(StatusCodes.EXPECTATION_FAILED).json({
             message : "invalid email",
             description : "enter valid email only"
         })
@@ -26,16 +27,16 @@ const validateSignUpData = async (req,res,next) => {
     //check user mail already exists or not
     const checkUserMail = await User.findOne({email});
     if(checkUserMail){
-        res.status(StatusCodes.FORBIDDEN).json({
-            message : "user already exists",
+        return res.status(StatusCodes.FORBIDDEN).json({
+            message : "User already exists",
             description : "dont use the already used email"
         })
     }
 
     //check if password matches
     if(password != confirmPassword){
-        res.status(StatusCodes.EXPECTATION_FAILED).json({
-            message : "password and confirm password does not match",
+        return res.status(StatusCodes.EXPECTATION_FAILED).json({
+            message : "Password and Confirm password does not match",
             description : "both password and confirm password does not match"
         })
     }

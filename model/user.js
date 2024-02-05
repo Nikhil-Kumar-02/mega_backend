@@ -58,6 +58,7 @@ const MySchema = new Schema({
 MySchema.pre('save', async function (next) {
     try {
         const hashedPassword = await bcrypt.hash(this.password, 6);
+        console.log('password : ',this.password , hashedPassword);
         this.password = hashedPassword;
         next();
     } catch (error) {

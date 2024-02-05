@@ -32,7 +32,7 @@ const showAllCategories = async (req,res) => {
         const allCategories = await Category.find({} , {name:true , description : true});
         return res.status(StatusCodes.OK).json({
             message : 'all data fetched',
-            data : allCategories
+            allCategories
         })
     } catch (error) {
         console.log('error while viewing all categories' , error);
