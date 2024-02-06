@@ -135,9 +135,40 @@ const getAllUserDetails = async (req,res) => {
     }
 }
 
+const getUserEnrolledCourses = async (req,res) => {
+    try {
+        //get the user id
+        const userId = req.user.id;
+
+        //then extract the the courses he is enrolled into and populate it
+        const userDetails = await User.findById(userId).populate("courses").exec();
+        
+        if(!userDetails){
+            return res.status(StatusCodes.BAD_GATEWAY).json({
+                message : 'no user found with the given id',
+            })
+        }
+
+        const userEnrolledCourses = userDetails.courses;
+
+        //return the response
+        return res.status(StatusCodes.OK).json({
+            message : "User enrolled courses Fetched",
+            userEnrolledCourses
+        })
+    } catch (error) {
+        console.log('error while fetchig the user enrolled courses ' , error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message : "Error while Fetching courses",
+            description : 'error while fetching the courses the user have enrolled into',
+        })
+    }
+}
+
 module.exports = {
     updateProfileData ,
     deleteUserPermanently,
     getAllUserDetails,
-    updateProfilePhoto
+    updateProfilePhoto,
+    getUserEnrolledCourses
 }
