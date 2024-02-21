@@ -4,6 +4,9 @@ const Category = require('../model/category')
 const Tag = require('../model/tags');
 const cloudinaryFileUpload = require('../utils/imageUploader');
 const { StatusCodes } = require('http-status-codes');
+const Section = require('../model/section');
+const SubSection = require('../model/subSection');
+const { deleteFromCloudinary } = require('../utils/deleteUploadedData');
 
 //create a course
 const createCourse = async (req,res) => {
@@ -379,10 +382,95 @@ const  instructor_user_Courses = async (req,res) => {
     }
 }
 
+const delete_instructor_Course = async (req,res) => {
+    try {
+        console.log("the req is :" , req.body);
+        const {courseId} = req.body;
+        const userId = req.user.id;
+
+        //get the course 
+        const targetCourse = await Course.findById(courseId);
+        console.log("the course found is : " , targetCourse);
+
+        //remove this course from the user created course
+        const userUpdatedCourses = await User.findByIdAndUpdate(userId , {
+            $pull : {
+                courses : courseId
+            }
+        } , {new : true});
+
+        console.log("the updated user details that is without the above course id is : " , userUpdatedCourses);
+
+        //remove this course from the category it belongs to
+        await Category.findByIdAndUpdate(targetCourse.category , {
+            $pull : {
+                courses : courseId
+            }
+        });
+
+        //remove this course from all the tags it belongs to
+        for(const tagId of targetCourse.tag){
+            await Tag.findByIdAndUpdate(tagId , {
+                $pull : {
+                    course : courseId
+                }
+            });
+        }
+
+        //and from the enrolled students remove this course
+        //ans also remove the enrolled students course progress related to this course
+        for(const studentId of targetCourse.studentsEnrolled){
+
+            await User.findByIdAndUpdate(studentId , {
+                $pull : {
+                    courses : studentId
+                }
+            });
+
+            await User.findByIdAndUpdate(studentId , {
+                $pull : {
+                    courseProgress : {
+                        courseId : targetCourse._id
+                    }
+                }
+            })
+        }
+
+        //delete all the section and subsection created from this course
+        for(const sectionId of targetCourse.courseContent){
+            const section = await Section.findById(sectionId);
+            for(const subsectionId of section.subSection){
+                //now here i will get all the subsection id belonging to a certain section
+                const deletedSubsection = await SubSection.findByIdAndDelete(subsectionId);
+                await deleteFromCloudinary("video" , deletedSubsection.videoUrl);
+            }
+            await Section.findByIdAndDelete(sectionId);
+        }
+
+        //finally delete the course itself
+        await Course.findByIdAndDelete(courseId);
+        
+        //return the instructors new courses list
+        return res.status(StatusCodes.OK).json({
+            message : "Course Deleted",
+            description : "course and all the immediate things related to this course also erased",
+            userUpdatedCourses
+        })
+        
+    } catch (error) {
+        console.log("error while deleting course in the course controller : " , error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message : "Cannot delete Course",
+            description : "error while deleting the course"
+        })
+    }
+}
+
 module.exports = {
     createCourse ,
     showAllCourses,
     getCompleteCourseDetails,
     // editCourse,
     instructor_user_Courses,
+    delete_instructor_Course,
 }
