@@ -2,7 +2,7 @@ const express = require('express');
 const {createCategory , showAllCategories} = require('../controller/category');
 const {createTag , showAllTags} = require('../controller/tags');
 const {auth , isAdmin, isInstructor} = require('../middleware/auth');
-const {createCourse , showAllCourses , getCompleteCourseDetails} = require('../controller/course');
+const {createCourse , showAllCourses , getCompleteCourseDetails, editCourse, instructor_user_Courses} = require('../controller/course');
 const {createSection , deleteSection , updateSection} = require("../controller/section");
 const {createSubSection , deleteSubsection , updateSubSection} = require('../controller/subsection');
 
@@ -12,8 +12,10 @@ router.post('/createCategory' ,auth , isAdmin , createCategory);
 router.get('/showAllCategories' , showAllCategories)
 
 router.post('/createCourse' , auth , isInstructor , createCourse);
+// router.post('/editCourse' , auth , isInstructor , editCourse);
+router.get('/instructor_user_Courses' , auth , instructor_user_Courses);
 router.get('/getAllCourses' , showAllCourses);
-router.post('/getFullCourseDetails' , auth  , getCompleteCourseDetails);
+router.post('/getFullCourseDetails' , getCompleteCourseDetails);
 
 router.post('/createTag' , auth , isInstructor , createTag);
 router.get('/showAllTags' , showAllTags)

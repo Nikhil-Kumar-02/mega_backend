@@ -8,11 +8,15 @@ const {deleteFromCloudinary} = require('../utils/deleteUploadedData');
 const createSubSection = async (req,res) => {
     try {
         //fetch data
-        const {title , timeDuration , description , sectionId} = req.body;
+        console.log("the data recieved in the create sub section is : " , req.body);
+
+        const {title , description , sectionId} = req.body;
         
         const video = req.files.videoFile;
+        console.log('the video file is : ' , video);
+
         //validate data
-        if(!title || !timeDuration || !description || !sectionId){
+        if(!title || !description || !sectionId){
             console.log('data missing');
             return res.status(StatusCodes.PARTIAL_CONTENT).json({
                 message : 'all feilds are mandatory'
@@ -21,6 +25,13 @@ const createSubSection = async (req,res) => {
         //upload video to cloudinary
         const cloudinaryResponse = await cloudinaryFileUpload(video , process.env.courseVideo_Folder_Name);
         // const timeDuration = `${hours}h : ${minutes}m : ${seconds}s`;
+
+        console.log("the clodinary response is : " , cloudinaryResponse);
+        console.log("the clodinary response duration is : " , cloudinaryResponse?.duration);
+        let timeDuration = cloudinaryResponse?.duration;
+        if(!timeDuration){
+            timeDuration = 56;
+        }
 
         //create a subsection
         const newlyCreatedSubsection = await Subsection.create({
@@ -38,13 +49,13 @@ const createSubSection = async (req,res) => {
 
         //return response
         return res.status(StatusCodes.OK).json({
-            message : 'subsection sucessfully create',
-            data : updatedSectionDetails
+            message : 'subsection sucessfully created',
+            updatedSectionDetails
         })
     } catch (error) {
         console.log('error while  creating subsection ' , error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            message : 'error while creating a subsection',
+            message : 'Cannot Create Subsection',
             error : error
         })
     }
@@ -91,30 +102,33 @@ const deleteSubsection = async (req,res) => {
 const updateSubSection = async (req,res) => {
     try {
         //fetch data
-        const {title="" , timeDuration="" , description="" , subsectionId=""} = req.body;
+        console.log("data recieved for subsection updation : " , req.body)
+        const {title="" ,  description="" , subsectionId=""} = req.body;
         //validate data
-        if(!title && !timeDuration && !description && !subsectionId){
+        if(!title && !description && !subsectionId){
             console.log('data missing');
             return res.status(StatusCodes.PARTIAL_CONTENT).json({
                 message : 'all feilds are mandatory'
             })
         }
+
+        let timeDuration = 0;
         let updatePayload = {};
+        
         if(title){
             updatePayload.title = title;
-        }
-        if(timeDuration){
-            updatePayload.timeDuration = timeDuration;
         }
         if(description){
             updatePayload.description = description;
         }
-        if(req.files.videoFile){
+        if(req?.files?.videoFile){
             const cloudinaryResponse = await cloudinaryFileUpload(req.files.videoFile , process.env.courseVideo_Folder_Name);
             updatePayload.videoUrl = cloudinaryResponse.secure_url;
+            updatePayload.timeDuration = cloudinaryResponse?.duration;
         }
         //update the data
-        console.log('the data recived for the updation ',updatePayload)
+        console.log('the data recived for the updation ',updatePayload);
+
         const updatedSubSection = await Subsection.findByIdAndUpdate(subsectionId , updatePayload, {new : true});
         //return response 
         return res.status(StatusCodes.CREATED).json({
@@ -122,7 +136,7 @@ const updateSubSection = async (req,res) => {
             updatedSubSection
         })
     } catch (error) {
-        console.log('error while updating a subsection');
+        console.log('error while updating a subsection' , error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message : 'error while updating a subsection',
             error

@@ -19,7 +19,7 @@ const createRating = async (req,res) => {
             }
         });
         if(!userAlreadyEnrolled){
-            console.log('you are not logged into this course so you cannot review this');
+            console.log('you are not enrolled into this course so you cannot review this');
             res.status(StatusCodes.METHOD_NOT_ALLOWED).json({
                 message : 'enroll first to give rating and review'
             })

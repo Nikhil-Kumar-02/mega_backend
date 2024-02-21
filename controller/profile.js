@@ -34,13 +34,14 @@ const updateProfileData = async(req,res) => {
 
 const updateProfilePhoto = async (req,res) => {
     try {
-        const {displayPicture} = req.files;
+        console.log("the req is  " , req?.files)
+        const {displayPicture} = req?.files;
 
         //extract the user id from the decripted token which is stored in the req.user
         const userId = req.user.id;
 
         
-        const cloudinaryResponse = await cloudinaryFileUpload(displayPicture , process.env.profilePictures_Folder_Name);
+        const cloudinaryResponse = await cloudinaryFileUpload(displayPicture , process.env.profilePictures_Folder_Name , null , 60);
 
         const updatedProfileResponse = await User.findByIdAndUpdate(userId , {image : cloudinaryResponse.secure_url}, {new:true});
 

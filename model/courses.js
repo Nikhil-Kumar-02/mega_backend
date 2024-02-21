@@ -61,6 +61,8 @@ const MySchema = new Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref : 'User'
     }],
+},{
+    timestamps : true,
 });
 
 module.exports = model("Courses", MySchema);

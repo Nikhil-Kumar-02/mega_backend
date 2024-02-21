@@ -96,7 +96,7 @@ const deleteSection = async (req,res) => {
         ).populate('courseContent');
         return res.status(StatusCodes.OK).json({
             message : 'a section has been sucessfully removed from the course',
-            data : updatedCourseDetails
+            updatedCourseDetails
         })
     } catch (error) {
         console.log('error while deleting a section' , error);
