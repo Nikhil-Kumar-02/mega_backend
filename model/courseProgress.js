@@ -6,6 +6,10 @@ const MySchema = new Schema({
         type : mongoose.Schema.Types.ObjectId,
         ref : 'Courses'
     },
+    userId : {
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'User',
+    },
     completedVideos : [{
         type : mongoose.Schema.Types.ObjectId,
         ref : 'SubSection'
