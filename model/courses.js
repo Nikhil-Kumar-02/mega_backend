@@ -43,7 +43,7 @@ const MySchema = new Schema({
     },
     category : {
         type : mongoose.Schema.Types.ObjectId,
-        require : true,
+        required : true,
         ref : 'Category'
     },
     instructions : {

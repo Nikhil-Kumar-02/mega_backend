@@ -179,7 +179,7 @@ const getCompleteCourseDetails = async (req,res) => {
         const {courseId} = req.body;
         //validate data
         //generate the desired result
-        const detailedCourseResponse = await Course.findById(courseId)
+        let detailedCourseResponse = await Course.findById(courseId)
         .populate({
             path : 'instructor',
             populate : {
@@ -194,7 +194,7 @@ const getCompleteCourseDetails = async (req,res) => {
                 model: 'SubSection'
             }
         })
-        .populate('reviewAndRatings')
+        // .populate('reviewAndRatings')
         .populate('tag')
         .populate('category').exec();   
 
@@ -204,14 +204,30 @@ const getCompleteCourseDetails = async (req,res) => {
                 message : 'no course found from the input course id'
             })
         }
-
+        
+        let totalCourseDuration = 0;
+        let detailedCourseResponsecpy = JSON.parse(JSON.stringify(detailedCourseResponse));
+        
+        for(let i=0; i<(detailedCourseResponsecpy.courseContent).length;i++){
+            //we are at each section of the course
+            const sec = detailedCourseResponsecpy.courseContent[i];
+            let totalSectionDuration = 0;
+            for(const subSec of sec.subSection){
+                totalSectionDuration += parseFloat(subSec.timeDuration);
+            }
+            detailedCourseResponsecpy.courseContent[i].totalSectionDuration=totalSectionDuration;
+            totalCourseDuration += totalSectionDuration;
+        }
+        detailedCourseResponsecpy.totalCourseDuration = totalCourseDuration;
+        console.log("the copied course is : " , detailedCourseResponsecpy);
+        
         //return response
         return res.status(StatusCodes.OK).json({
             message : 'course complete data fetched from db',
-            detailedCourseResponse
+            detailedCourseResponsecpy
         })
     } catch (error) {
-        console.log('error while fetching the complete course details');
+        console.log('error while fetching the complete course details' , error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message: 'error while fetching the complete course details',
             error
