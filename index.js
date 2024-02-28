@@ -10,7 +10,12 @@ const {cloudinaryConnect} = require('./config/connectCloudinary');
 const fileUpload =  require('express-fileupload');
 const dotenv = require('dotenv');
 dotenv.config();
-const apiRoutes = require('./routes/v1/index')
+const apiRoutes = require('./routes/v1/index');
+// const CourseProgress = require('./model/courseProgress');
+
+// (async ()=> {
+//   await CourseProgress.collection.drop();
+// })();
 
 app.use(express.json());
 app.use(cookieParser());

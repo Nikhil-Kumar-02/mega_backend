@@ -4,7 +4,7 @@ const Course = require('../model/courses');
 const sendEmail = require('../utils/mailer');
 const { StatusCodes } = require('http-status-codes');
 const { default: mongoose } = require('mongoose');
-const CourseProgress = require('../model/CourseProgress');
+const NewCourseProgress = require('../model/CourseProgress');
 
 
 //initiate the razorpay order
@@ -112,7 +112,7 @@ const enrollStudents = async(courses, userId, res) => {
             return res.status(500).json({success:false,message:"Course not Found"});
         }
 
-        const courseProgress = await CourseProgress.create({
+        const courseProgress = await NewCourseProgress.create({
             courseId:courseId,
             userId:userId,
             completedVideos: [],

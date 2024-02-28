@@ -16,5 +16,5 @@ const MySchema = new Schema({
     }],
 });
 
-module.exports = model("CourseProgress", MySchema);
+module.exports = model("NewCourseProgress", MySchema);
   

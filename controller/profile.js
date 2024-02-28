@@ -1,4 +1,4 @@
-const CourseProgress = require('../model/courseProgress');
+const NewCourseProgress = require('../model/CourseProgress');
 const Course = require('../model/courses');
 const Profile = require('../model/profile');
 const User = require('../model/user');
@@ -87,7 +87,7 @@ const deleteUserPermanently = async (req,res) => {
 
         for(const eachCourseProgressId of allCoursesProgress){
             //delete each track of progress made by user
-            await CourseProgress.findByIdAndDelete(eachCourseProgressId);
+            await NewCourseProgress.findByIdAndDelete(eachCourseProgressId);
         }
 
         //then delete his instances from the courses he enrolled

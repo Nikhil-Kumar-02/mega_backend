@@ -45,7 +45,7 @@ const MySchema = new Schema({
     },
     courseProgress : [{
         type : mongoose.Schema.Types.ObjectId,
-        ref : 'CourseProgress'
+        ref : 'NewCourseProgress'
     }],
     token : {
         type : String,
