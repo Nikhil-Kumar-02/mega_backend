@@ -5,6 +5,8 @@ const sendEmail = require('../utils/mailer');
 const { StatusCodes } = require('http-status-codes');
 const { default: mongoose } = require('mongoose');
 const NewCourseProgress = require('../model/CourseProgress');
+const crypto = require('crypto');
+require('dotenv').config();
 
 
 //initiate the razorpay order
@@ -12,6 +14,8 @@ exports.capturePayment = async(req, res) => {
 
     const {courses} = req.body;
     const userId = req.user.id;
+
+    console.log("inside the capture payment" , courses);
 
     if(courses.length === 0) {
         return res.json({success:false, message:"Please provide Course Id"});
@@ -47,6 +51,8 @@ exports.capturePayment = async(req, res) => {
         receipt: Math.random(Date.now()).toString(),
     }
 
+    console.log("the options are : " , options);
+
     try{
         const paymentResponse = await instance.orders.create(options);
         res.json({
@@ -70,6 +76,8 @@ exports.verifyPayment = async(req, res) => {
     const courses = req.body?.courses;
     const userId = req.user.id;
 
+    console.log("inside the verify payment  ");
+
     if(!razorpay_order_id ||
         !razorpay_payment_id ||
         !razorpay_signature || !courses || !userId) {
@@ -78,12 +86,13 @@ exports.verifyPayment = async(req, res) => {
 
     let body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
-        .createHmac("sha256", process.env.RAZORPAY_SECRET)
+        .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
         .update(body.toString())
         .digest("hex");
 
         if(expectedSignature === razorpay_signature) {
             //enroll karwao student ko
+            console.log("the signature matched yeah")
             await enrollStudents(courses, userId, res);
             //return res
             return res.status(200).json({success:true, message:"Payment Verified"});
@@ -98,6 +107,8 @@ const enrollStudents = async(courses, userId, res) => {
     if(!courses || !userId) {
         return res.status(400).json({success:false,message:"Please Provide data for Courses or UserId"});
     }
+
+    console.log("call went for enrolling students");
 
     for(const courseId of courses) {
         try{
