@@ -142,7 +142,16 @@ const getUserEnrolledCourses = async (req,res) => {
         const userId = req.user.id;
 
         //then extract the the courses he is enrolled into and populate it
-        const userDetails = await User.findById(userId).populate("courses").exec();
+        const userDetails = await User.findById(userId)
+        .populate({
+            path : 'courses',
+            populate : {
+                path : 'courseContent',
+                populate : {
+                    path : 'subSection'
+                }
+            }
+        }).exec();
         
         if(!userDetails){
             return res.status(StatusCodes.BAD_GATEWAY).json({

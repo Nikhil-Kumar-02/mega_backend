@@ -3,7 +3,8 @@ const courseRoute = require('../Course');
 const paymentRoute = require('../Payment');
 const userRoute = require('../User');
 const profileRoute = require('../Profile');
-const otherRoutes = require('../extraRoute')
+const otherRoutes = require('../extraRoute');
+const RatingAndR = require('../RatingAndR');
 
 const router = express.Router();
 
@@ -11,6 +12,7 @@ router.use('/auth' , userRoute);
 router.use('/profile' , profileRoute);
 router.use('/course' , courseRoute);
 router.use('/payment' , paymentRoute);
-router.use('/otherRoutes' , otherRoutes)
+router.use('/otherRoutes' , otherRoutes);
+router.use('/ratingAndreview' , RatingAndR);
 
 module.exports = router;

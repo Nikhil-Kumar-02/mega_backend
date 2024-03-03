@@ -1,41 +1,52 @@
 const RatingAndReviews = require('../model/ratingAndReviews');
 const Course = require('../model/courses');
 const { StatusCodes } = require('http-status-codes');
-const { default: mongoose } = require('mongoose');
+const { default: mongoose, Mongoose } = require('mongoose');
 
 //createRating
 const createRating = async (req,res) => {
     try {
         //fetch data
+        console.log("rached rating : " , req.body);
         const {rating , review , courseId} = req.body;
         const userId = req.user.id;
+        const objectUserId = new mongoose.Types.ObjectId(userId)
         //check if user has enrolled or not
-        const userAlreadyEnrolled = await Course.findOne({
-            _id : courseId , 
-            studentsEnrolled : {
-                $elemMatch : {
-                    $eq : userId,
-                }
-            }
-        });
-        if(!userAlreadyEnrolled){
+        console.log("the user id is " , objectUserId );
+        const userAlreadyEnrolled = await Course.findById(courseId);
+
+        // const userAlreadyEnrolled = await Course.findOne({
+        //     _id : courseId , 
+        //     studentsEnrolled : {
+        //         $elemMatch : {
+        //             $eq : userId,
+        //         }
+        //     }
+        // });
+
+        console.log("the user is : " , userAlreadyEnrolled);
+
+        //unenrolled student cant give rebiew thing not checked
+        if(!userAlreadyEnrolled.studentsEnrolled.includes(userId)){
             console.log('you are not enrolled into this course so you cannot review this');
-            res.status(StatusCodes.METHOD_NOT_ALLOWED).json({
-                message : 'enroll first to give rating and review'
+            return res.status(StatusCodes.METHOD_NOT_ALLOWED).json({
+                message : 'Enroll first to give rating and review'
             })
         }
 
         //ckeck if user already reviewed the course
         //updated the rating and review model
-        const thisUserReview = RatingAndReviews.findOne({
+        const thisUserReview = await RatingAndReviews.findOne({
             user : userId , 
             course : courseId
         });
 
+        console.log("the already given rating is : " , thisUserReview);
+
         if(thisUserReview){
             console.log('you have already reviewed this course you can now only edit your review now');
-            res.status(StatusCodes.METHOD_NOT_ALLOWED).json({
-                message : 'you have already reviewed this course you can now only edit your review now'
+            return res.status(StatusCodes.METHOD_NOT_ALLOWED).json({
+                message : 'Already Rated the course'
             })
         }
         //create rating and review
@@ -53,15 +64,15 @@ const createRating = async (req,res) => {
         },{new : true});
         console.log('the updated course is : ', updatedCourseDetails);
         //return response
-        res.status(StatusCodes.OK).json({
+        return res.status(StatusCodes.OK).json({
             message : 'your rating has been sucessfully added to this course thanks for feedback',
             createdRatingAndReview
         })
 
     } catch (error) {
-        console.log('error while creating a rating a review');
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            message : 'error while creating a rating a review',
+        console.log('error while creating a rating a review' , error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message : 'Error while creating a rating a review',
             error
         })
     }
@@ -115,21 +126,21 @@ const getAverageRating = async (req,res) => {
         ]);
 
         if(result.length > 0){
-            res.status(StatusCodes.OK).json({
-                message : 'average rating for this course calculated',
+            return res.status(StatusCodes.OK).json({
+                message : 'Average rating for this course calculated',
                 rating : result[0].babarWayOfaverageRating,
             }); 
         }
 
-        res.status(StatusCodes.OK).json({
-            message : 'no one has given any rating to this course',
+        return res.status(StatusCodes.OK).json({
+            message : 'No one has given any rating to this course',
             rating : 0
         });
         
     } catch (error) {
         console.log('error while fetching the average rating');
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            message : 'error while fetching the average rating',
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message : 'Error while fetching the average rating',
             error
         })
     }
@@ -141,15 +152,17 @@ const getAllRating = async (req,res) => {
     try {
         //fetch data
         //generate rating let say any 6
-        const generateData = await RatingAndReviews.find({}).sort({rating : 'desc'}).skip(6).limit(6).exec();
+        const generateData = await RatingAndReviews.find({}).sort({rating : 'desc'})
+        // .skip(6)
+        .limit(6).exec();
         //return res
-        res.status(StatusCodes.OK).json({
+        return res.status(StatusCodes.OK).json({
             message : 'fetched n number of data',
             data : generateData
         })
     } catch (error) {
         console.log('error while fetching all rating');
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             message : 'error while fetching all rating at once',
             error
         })
@@ -164,20 +177,20 @@ const getAllRatingOfaCourse = async (req,res) => {
         //generate rating let say any 6
         const generateData = await RatingAndReviews.find({course : courseId})
             .sort({rating : 'desc'})
-            .skip(6)
+            // .skip(6)
             .limit(6)
             .populate({path : 'user' , select : 'firstName lastName email image'})
             .populate({path : 'course' , select : 'courseName'})
             .exec();
         //return res
-        res.status(StatusCodes.OK).json({
-            message : 'fetched n number of data',
+        return res.status(StatusCodes.OK).json({
+            message : 'fetched 6 user top rating and review data',
             data : generateData
         })
     } catch (error) {
         console.log('error while fetching all rating');
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            message : 'error while fetching all rating at once',
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message : 'error while fetching all rating of a course at once',
             error
         })
     }
