@@ -28,12 +28,14 @@ exports.capturePayment = async(req, res) => {
         try{
            
             course = await Course.findById(course_id);
+            console.log("the course is : " , course);
             if(!course) {
                 return res.status(200).json({success:false, message:"Could not find the course"});
             }
 
             const uid  = new mongoose.Types.ObjectId(userId);
-            if(course.studentsEnrolled.includes(uid)) {
+            console.log("the students enrolled in the course are : " , course?.studentsEnrolled);
+            if(course?.studentsEnrolled?.includes(uid)) {
                 return res.status(200).json({success:false, message:"Student is already Enrolled"});
             }
 

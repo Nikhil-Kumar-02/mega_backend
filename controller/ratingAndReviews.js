@@ -2,6 +2,7 @@ const RatingAndReviews = require('../model/ratingAndReviews');
 const Course = require('../model/courses');
 const { StatusCodes } = require('http-status-codes');
 const { default: mongoose, Mongoose } = require('mongoose');
+const NewCourseProgress = require('../model/courseProgress');
 
 //createRating
 const createRating = async (req,res) => {
@@ -196,9 +197,59 @@ const getAllRatingOfaCourse = async (req,res) => {
     }
 }
 
+const markSubsection = async (req,res) => {
+    try {
+        console.log("the data in req : " , req.body);
+        const {courseId , subsectionId} = req.body;
+        const userId = req.user.id;
+
+        //first find the course preogress entry regarding this courseid and userid 
+        //if this subsection does not exits then insert this and return updated result
+        let dataFound = await NewCourseProgress.findOne({courseId , userId});
+
+        console.log("the user found course progress is : " , dataFound);
+
+        if(!dataFound){
+            return res.status(StatusCodes.METHOD_NOT_ALLOWED).json({
+                message : 'You cannot mark the Courses' , 
+                description : "this can be because during payment empty course progress for that courseid and userid was not intialized"
+            })
+        }
+
+        if(!subsectionId){
+            return res.status(StatusCodes.OK).json({
+                message : "the seen lectures are these",
+                dataFound
+            })
+        }
+
+        if(dataFound.completedVideos.includes(subsectionId)){
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message : "Course already marked",
+                description : 'This subsection is present in the conpleted list of subsections'
+            })
+        }
+
+        dataFound.completedVideos.push(subsectionId);
+        dataFound = await dataFound.save();
+
+        return res.status(StatusCodes.OK).json({
+            message : "Marked sucessfully",
+            dataFound,
+        })
+
+    } catch (error) {
+        console.log("error while pushing a subsection into course progress " , error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message : "error while marking a Subsection",
+        })
+    }
+}
+
 module.exports = {
     createRating , 
     getAverageRating,
     getAllRating , 
-    getAllRatingOfaCourse
+    getAllRatingOfaCourse,
+    markSubsection,
 }

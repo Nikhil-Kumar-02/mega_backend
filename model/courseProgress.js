@@ -16,5 +16,7 @@ const MySchema = new Schema({
     }],
 });
 
-module.exports = model("NewCourseProgress", MySchema);
+mongoose.models = {};
+
+module.exports = model.NewCourseProgress || model("NewCourseProgress", MySchema);
   
