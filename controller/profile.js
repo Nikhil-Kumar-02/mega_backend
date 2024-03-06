@@ -175,10 +175,45 @@ const getUserEnrolledCourses = async (req,res) => {
     }
 }
 
+const instructorDashboard = async (req,res) => {
+    try {
+        const courseDetails = await Course.find({instructor : req.user.id});
+
+        //now generate the course data
+        const courseData = courseDetails.map((course) => {
+            console.log("the course is " , course);
+            const totalStudents = course?.studentsEnrolled?.length;
+            const totalAmountGenerated = totalStudents * parseInt(course.price);
+
+            const courseDataStats = {
+                _id : course._id,
+                courseName : course.courseName,
+                courseDescription : course.courseDescription,
+                totalStudents,
+                totalAmountGenerated,
+                image : course.thumbnail
+            }
+            return courseDataStats;
+        })
+
+        return res.status(StatusCodes.OK).json({
+            message : 'instructor stats generated',
+            courseData,
+        })
+    } catch (error) {
+        console.log("error in instructor dashboard in profile controller" , error);
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+            message : 'no instructor data fetched',
+            description : 'error while fetching the instructor all courses data',
+        })
+    }
+}
+
 module.exports = {
     updateProfileData ,
     deleteUserPermanently,
     getAllUserDetails,
     updateProfilePhoto,
-    getUserEnrolledCourses
+    getUserEnrolledCourses,
+    instructorDashboard
 }
