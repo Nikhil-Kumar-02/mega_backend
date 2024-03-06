@@ -17,15 +17,26 @@ const addToCart = async (req , res) => {
             })
         }
 
-        const newCart = await Cart.findByIdAndUpdate(userId , {
+        const userCurrentCart = await Cart.findOne({userId});
+        if(userCurrentCart.cartItems.includes(courseId)){
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message : 'course Aleady in cart',
+                description : 'course is already added to cart',
+            })
+        }
+
+        const newCart = await Cart.findOneAndUpdate({userId} , {
             $push : {
                 cartItems : courseId,
             }
         } , {new : true});
 
+        console.log('the updated cart is ' , newCart);
+
         return res.status(StatusCodes.OK).json({
             message : 'course added to cart',
             newCart,
+            courseFound
         })
     } catch (error) {
         console.log('error while adding item to cart : ' , error);
@@ -52,7 +63,7 @@ const removeFromCart = async (req , res) => {
             })
         }
 
-        const newCart = await Cart.findByIdAndUpdate(userId , {
+        const newCart = await Cart.findOneAndUpdate({userId} , {
             $pull : {
                 cartItems : courseId,
             }
@@ -61,6 +72,7 @@ const removeFromCart = async (req , res) => {
         return res.status(StatusCodes.OK).json({
             message : 'course removed from cart',
             newCart,
+            courseFound,
         })
     } catch (error) {
         console.log('error while removind item from cart : ' , error);
