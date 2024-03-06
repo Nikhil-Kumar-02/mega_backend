@@ -5,6 +5,7 @@ const userRoute = require('../User');
 const profileRoute = require('../Profile');
 const otherRoutes = require('../extraRoute');
 const RatingAndR = require('../RatingAndR');
+const CartRoutes = require('../Cart');
 
 const router = express.Router();
 
@@ -14,5 +15,6 @@ router.use('/course' , courseRoute);
 router.use('/payment' , paymentRoute);
 router.use('/otherRoutes' , otherRoutes);
 router.use('/ratingAndreview' , RatingAndR);
+router.use('/CartRoutes' , CartRoutes);
 
 module.exports = router;

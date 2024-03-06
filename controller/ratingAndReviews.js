@@ -203,6 +203,16 @@ const markSubsection = async (req,res) => {
         const {courseId , subsectionId} = req.body;
         const userId = req.user.id;
 
+        if(!courseId){
+            //we have to return all the course progress of this student
+            const allProgress = await NewCourseProgress.find({userId});
+            console.log("the user all progress : " , allProgress);
+            return res.status(StatusCodes.OK).json({
+                message : "user all progress",
+                allProgress
+            })
+        }
+
         //first find the course preogress entry regarding this courseid and userid 
         //if this subsection does not exits then insert this and return updated result
         let dataFound = await NewCourseProgress.findOne({courseId , userId});

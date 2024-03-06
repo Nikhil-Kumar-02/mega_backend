@@ -6,6 +6,7 @@ const Profile= require('../model/profile');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const sendEmail = require('../utils/mailer');
+const Cart = require('../model/cart');
 require('dotenv').config();
 
 //send otp as to create account we have to verify the mail
@@ -135,6 +136,9 @@ const signup = async(req,res) => {
 
         //now we have everything to create a user
         const newUser = await User.create({firstName , lastName , email , accountType , phoneNumber , password , image , additionalDetails : userProfile._id});
+
+        //also create an empty cart for the user
+        const newCart = await Cart.create({userId : newUser._id , cartItems : []});
 
         console.log('the newly added user is : ' ,  newUser);
 
