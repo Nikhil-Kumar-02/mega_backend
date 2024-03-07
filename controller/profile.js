@@ -1,4 +1,4 @@
-const NewCourseProgress = require('../model/CourseProgress');
+const NewCourseProgress = require('../model/NewCourseProgress');
 const Course = require('../model/courses');
 const Profile = require('../model/profile');
 const User = require('../model/user');

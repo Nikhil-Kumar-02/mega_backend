@@ -2,7 +2,7 @@ const RatingAndReviews = require('../model/ratingAndReviews');
 const Course = require('../model/courses');
 const { StatusCodes } = require('http-status-codes');
 const { default: mongoose, Mongoose } = require('mongoose');
-const NewCourseProgress = require('../model/courseProgress');
+const NewCourseProgress = require("../model/NewCourseProgress");
 
 //createRating
 const createRating = async (req,res) => {
