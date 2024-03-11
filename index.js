@@ -40,7 +40,7 @@ app.use('/api/v1' , apiRoutes);
 app.get('/', (req, res) => {
   res.json({
     sucess : true,
-    message : 'your server is up and running....'
+    message : 'your server is up and runningg....'
   })
 })
 
